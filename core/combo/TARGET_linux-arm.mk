@@ -35,7 +35,7 @@ TARGET_ARCH_VARIANT := armv5te
 endif
 
 ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
-TARGET_GCC_VERSION := 4.7
+TARGET_GCC_VERSION := 4.8
 else
 TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
 endif
@@ -68,16 +68,23 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-TARGET_arm_CFLAGS :=    -O2 \
+TARGET_arm_CFLAGS :=    -O3 \
                         -fomit-frame-pointer \
+                        -pipe                \
+                        -Wl,--hash-style=gnu \
+                        -fno-tree-vectorize  \
+                        -fno-inline-functions\
+                        -fno-unswitch-loops  \
                         -fstrict-aliasing    \
-                        -funswitch-loops
+                        -Wstrict-aliasing=2  \
+                        -Werror=strict-aliasing
 
 # Modules can choose to compile some source as thumb.
 TARGET_thumb_CFLAGS :=  -mthumb \
                         -Os \
-                        -fomit-frame-pointer \
-                        -fno-strict-aliasing
+                        -fstrict-aliasing    \
+                        -Wstrict-aliasing=2  \
+                        -Werror=strict-aliasing
 
 # Set FORCE_ARM_DEBUGGING to "true" in your buildspec.mk
 # or in your environment to force a full arm build, even for
@@ -121,7 +128,7 @@ TARGET_GLOBAL_CFLAGS += \
 # We cannot turn it off blindly since the option is not available
 # in gcc-4.4.x.  We also want to disable sincos optimization globally
 # by turning off the builtin sin function.
-ifneq ($(filter 4.6 4.6.% 4.7 4.7.%, $(TARGET_GCC_VERSION)),)
+ifneq ($(filter 4.6 4.6.% 4.7 4.7.% 4.8 4.8.% 4.9 4.9.%, $(TARGET_GCC_VERSION)),)
 TARGET_GLOBAL_CFLAGS += -Wno-unused-but-set-variable -fno-builtin-sin \
 			-fno-strict-volatile-bitfields
 endif
@@ -153,7 +160,9 @@ TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 TARGET_RELEASE_CFLAGS := \
 			-DNDEBUG \
 			-g \
+			-fstrict-aliasing \
 			-Wstrict-aliasing=2 \
+			-Werror=strict-aliasing \
 			-fgcse-after-reload \
 			-frerun-cse-after-loop \
 			-frename-registers
