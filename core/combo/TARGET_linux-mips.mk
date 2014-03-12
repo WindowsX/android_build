@@ -35,7 +35,7 @@ TARGET_ARCH_VARIANT := mips32r2-fp
 endif
 
 ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
-TARGET_GCC_VERSION := 4.7
+TARGET_GCC_VERSION := 4.8
 else
 TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
 endif
@@ -68,10 +68,16 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-TARGET_mips_CFLAGS :=	-O2 \
+TARGET_mips_CFLAGS :=	-O3 \
 			-fomit-frame-pointer \
-			-fno-strict-aliasing    \
-			-funswitch-loops
+			-pipe                \
+			-Wl,--hash-style=gnu \
+			-fno-tree-vectorize  \
+			-fno-inline-functions\
+			-fno-unswitch-loops  \
+			-fstrict-aliasing    \
+			-Wstrict-aliasing=2  \
+			-Werror=strict-aliasing
 
 # Set FORCE_MIPS_DEBUGGING to "true" in your buildspec.mk
 # or in your environment to gdb debugging easier.
@@ -99,7 +105,7 @@ TARGET_GLOBAL_CFLAGS += \
 # This warning causes dalvik not to build with gcc 4.6+ and -Werror.
 # We cannot turn it off blindly since the option is not available
 # in gcc-4.4.x.
-ifneq ($(filter 4.6 4.6.% 4.7 4.7.%, $(TARGET_GCC_VERSION)),)
+ifneq ($(filter 4.6 4.6.% 4.7 4.7.% 4.8 4.8.% 4.9 4.9.%, $(TARGET_GCC_VERSION)),)
 TARGET_GLOBAL_CFLAGS += -Wno-unused-but-set-variable \
                         -fno-strict-volatile-bitfields
 endif
@@ -131,7 +137,9 @@ TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 TARGET_RELEASE_CFLAGS := \
 			-DNDEBUG \
 			-g \
+			-fstrict-aliasing \
 			-Wstrict-aliasing=2 \
+			-Werror=strict-aliasing \
 			-fgcse-after-reload \
 			-frerun-cse-after-loop \
 			-frename-registers
