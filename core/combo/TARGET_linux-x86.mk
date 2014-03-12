@@ -23,7 +23,7 @@ TARGET_ARCH_VARIANT := x86
 endif
 
 ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
-TARGET_GCC_VERSION := 4.7
+TARGET_GCC_VERSION := 4.8
 else
 TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
 endif
@@ -88,12 +88,13 @@ KERNEL_HEADERS := $(KERNEL_HEADERS_COMMON) $(KERNEL_HEADERS_ARCH)
 android_config_h := $(call select-android-config-h,target_linux-x86)
 
 TARGET_GLOBAL_CFLAGS += \
-			-O2 \
+			-O3 \
 			-Ulinux \
 			-Wa,--noexecstack \
 			-Werror=format-security \
 			-D_FORTIFY_SOURCE=2 \
 			-Wstrict-aliasing=2 \
+			-Werror=strict-aliasing \
 			-fPIC -fPIE \
 			-ffunction-sections \
 			-finline-functions \
